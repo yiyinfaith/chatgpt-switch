@@ -16,3 +16,4 @@ output/
 
 # Packaged binaries belong in GitHub Releases, not the source branch.
 ChatGPT Switch.exe
+/SHA256SUMS.txt
