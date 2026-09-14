@@ -1,0 +1,38 @@
+.settings-modal{width:585px}
+.startup-setting{margin-top:18px}
+.modal .startup-setting .startup-option{display:flex;align-items:center;justify-content:space-between;gap:16px;margin:16px 0 0;cursor:pointer}
+.startup-option strong{display:block;font-size:12px;font-weight:600}
+.startup-option small{display:block;font-size:11px;color:#929fb5;line-height:1.7;margin-top:4px;font-weight:400}
+.startup-background-option{border-top:1px solid #e1e7f2;padding-top:15px}
+.modal .startup-option input{appearance:none;position:relative;flex-shrink:0;width:42px;height:24px;padding:0;margin:0;border:1px solid #cad3e6;border-radius:20px;background:#d9dfec;cursor:pointer;transition:background .2s,border-color .2s}
+.startup-option input:before{content:"";position:absolute;left:3px;top:3px;width:16px;height:16px;border-radius:50%;background:white;box-shadow:0 1px 4px #7884a42b;transition:transform .2s}
+.modal .startup-option input:checked{background:#8d89de;border-color:#8d89de}
+.startup-option input:checked:before{transform:translateX(18px)}
+.startup-option input:focus-visible{outline:3px solid #abb7ed;outline-offset:3px}
+.startup-option input:disabled{opacity:.5;cursor:default}
+.setting-link{width:100%;display:flex;align-items:center;gap:15px;text-align:left;border:1px solid #e0e5f4;border-radius:16px;padding:18px;background:linear-gradient(115deg,#ffffffb0,#eff2ff9c);color:#53617e;transition:background .2s,border-color .2s}
+.setting-link:hover{background:linear-gradient(115deg,#eeeaff,#edf7ff);border-color:#c9caee}
+.setting-icon{display:grid;place-items:center;width:39px;height:39px;border-radius:12px;flex-shrink:0;background:linear-gradient(135deg,#e6e2fc,#e1eff9);color:#9694cf}
+.setting-icon svg{width:21px;height:21px}
+.setting-copy{display:block;flex:1;min-width:0}
+.setting-copy strong{display:block;font-size:14px;font-weight:600}
+.setting-copy small{display:block;color:#94a0b5;font-size:11px;line-height:1.8;margin-top:5px}
+.setting-arrow{width:17px;height:17px;color:#a5adca;flex-shrink:0}
+.close-setting{margin-top:24px;border:1px solid #e1e7f2;border-radius:16px;padding:18px;background:#ffffff57}
+.setting-section-heading{display:flex;align-items:center;gap:14px}
+.setting-section-heading h3{font-size:14px;font-weight:600;margin:0;color:#566581}
+.setting-section-heading p{font-size:11px;color:#94a0b5;margin:6px 0 0}
+.close-options{display:grid;gap:10px;margin-top:18px}
+.modal .close-option{display:flex!important;align-items:center;gap:12px;border:1px solid #e0e6f2;border-radius:12px;padding:14px;margin:0!important;background:#ffffff66;cursor:pointer}
+.close-option:has(input:checked){border-color:#aaa6e7;background:linear-gradient(110deg,#eeeaffb0,#eaf3ff90)}
+.modal .close-option input{width:16px;height:16px;padding:0;margin:0;flex-shrink:0;accent-color:#8c87de}
+.close-option strong{display:block;font-size:12px;font-weight:600}
+.close-option small{display:block;font-size:11px;color:#929fb5;line-height:1.7;margin-top:4px;font-weight:400}
+.close-setting .field-help{margin:14px 0 0;line-height:1.8}
+.settings-saved{font-size:11px;color:#79a296;margin:16px 0 0}
+#settings-save{margin-top:22px}
+.convenience-install{margin-bottom:18px}
+.convenience-config{margin-bottom:12px}
+.dialog-back{flex-shrink:0}.dialog-back svg{transform:rotate(180deg)}
+.modal-header:has(.dialog-back)>div{flex:1}
+@media(max-width:600px){.setting-link,.close-setting{padding:15px}.setting-copy small{font-size:10px}.setting-section-heading{gap:11px}.close-option small{font-size:10px}}

@@ -1,0 +1,18 @@
+# Local runtime state and credentials (never commit these files).
+# Runtime state, browser data, generated icons and test fixtures.
+data/*
+!data/.gitkeep
+backups/*
+!backups/.gitkeep
+
+# Python, Node and local test/build output.
+__pycache__/
+*/__pycache__/
+.pytest_cache/
+.mypy_cache/
+.playwright-cli/
+output/
+*.log
+
+# Packaged binaries belong in GitHub Releases, not the source branch.
+ChatGPT Switch.exe

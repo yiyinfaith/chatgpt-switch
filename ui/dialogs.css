@@ -1,0 +1,221 @@
+/* Shared visual language for the four footer workflows. */
+:root{
+ --dialog-ink:#33425f;
+ --dialog-copy:#7e8da8;
+ --dialog-muted:#97a4ba;
+ --dialog-purple:#7d83e8;
+ --dialog-purple-dark:#6f76dd;
+ --dialog-blue-bg:#e0ebfc;
+ --dialog-blue-border:#aec4e7;
+ --dialog-blue-text:#48699b;
+}
+
+.modal{
+ border-radius:28px;
+ padding:30px 32px;
+ border:1px solid #ffffff;
+ background:linear-gradient(135deg,#f9fafff7 0%,#f0f3fff3 54%,#eef8fbf2 100%);
+ color:var(--dialog-ink);
+ box-shadow:0 30px 100px #34497038,inset 0 1px 1px #fff;
+ scrollbar-color:#b9c9e5 transparent;
+ display:flex;
+ flex-direction:column;
+ overflow:hidden;
+}
+.modal > .dialog-scroll,
+.modal form > .dialog-scroll{
+ min-height:0;
+ flex:1 1 auto;
+ overflow-y:auto;
+ scrollbar-width:thin;
+ scrollbar-color:#b9c9e5 transparent;
+ padding-right:6px;
+ margin-right:-8px;
+}
+.modal > .modal-header,
+.modal > .modal-intro,
+.modal > form > .profile-actions,
+.modal > form > #settings-save,
+.modal > form > #setup-save,
+.modal > form > .settings-saved{flex:0 0 auto}
+.modal > form{display:flex;flex:1 1 auto;min-height:0;flex-direction:column}
+.modal > form > .dialog-scroll{flex:1 1 auto}
+.modal:not([open]){display:none}
+.modal[open]{display:flex}
+.modal::backdrop{background:#31456955;backdrop-filter:blur(7px)}
+.modal-header{gap:15px;align-items:center}
+.modal-header>div{min-width:0}
+.modal .eyebrow.small{font-size:9px;line-height:1.2;letter-spacing:1.3px;color:#8f9bbc;font-weight:700}
+.modal h2{margin:7px 0 0;font-size:27px;line-height:1.2;font-weight:650;letter-spacing:-.55px;color:var(--dialog-ink)}
+.modal-intro{margin:16px 0 24px;font-size:12px;line-height:1.8;color:var(--dialog-copy)}
+.modal .icon-button{
+ width:40px;height:40px;border:1px solid #cfdaec;border-radius:14px;
+ background:#f7f9fdd0;color:#6d7fa4;
+}
+.modal .icon-button:hover{background:var(--dialog-blue-bg);border-color:var(--dialog-blue-border);color:var(--dialog-blue-text)}
+.modal .dialog-back{border-color:#a7bce4;background:#e9f0fdd9;color:#5574a4}
+.modal .dialog-back svg{width:19px;height:19px}
+
+/* Consistent hover motion across every interactive card, option and button. */
+.modal button,
+.modal .setting-link,
+.modal .shortcut-card,
+.modal .close-option,
+.modal .startup-option,
+.modal .component,
+.modal .update-row,
+.modal .detail-item,
+.modal .setup-profile,
+.modal summary,
+footer button,
+.profiles-panel button,
+.status > button{
+ transition:transform .2s ease,box-shadow .2s ease,background .2s ease,border-color .2s ease,filter .2s ease;
+}
+.modal button:not(:disabled):hover,
+footer button:hover,
+.profiles-panel button:hover,
+.status > button:hover{transform:translateY(-2px)}
+.modal .setting-link:hover,
+.modal .shortcut-card:hover,
+.modal .close-option:hover,
+.modal .startup-option:hover,
+.modal .component:hover,
+.modal .update-row:hover,
+.modal .detail-item:hover,
+.modal .setup-profile:hover{transform:translateY(-2px);box-shadow:0 8px 20px #6679a51c}
+.modal button:active:not(:disabled),
+footer button:active,
+.profiles-panel button:active,
+.status > button:active{transform:translateY(1px)}
+.modal button:disabled{transform:none;filter:none}
+.modal .segmented{transition:box-shadow .2s ease,border-color .2s ease}
+.modal .segmented:hover{box-shadow:0 8px 20px #6679a51c;border-color:#c3cdec}
+.modal .segmented span:hover{filter:brightness(1.04)}
+.modal .segmented label{transition:transform .2s ease,filter .2s ease;z-index:0}
+.modal .segmented label:hover{transform:translateY(-3px);filter:brightness(1.06);z-index:1}
+.modal .segmented label:hover span{box-shadow:0 6px 14px #6679a52e}
+.modal .backup-summary,
+.modal .rules{transition:transform .2s ease,box-shadow .2s ease,border-color .2s ease,background .2s ease}
+.modal .backup-summary:hover,
+.modal .rules:hover{transform:translateY(-2px);box-shadow:0 8px 20px #6679a51c;border-color:#c3cdec}
+.modal .form-note,
+.modal .form-error{transition:transform .2s ease,box-shadow .2s ease,border-color .2s ease}
+.modal .form-note:hover,.modal .form-error:hover{transform:translateY(-1px);box-shadow:0 6px 16px #6679a514}
+
+.modal .primary{
+ min-height:46px;padding:0 20px;border-radius:14px;
+ background:linear-gradient(120deg,#8d96f5 0%,var(--dialog-purple) 55%,var(--dialog-purple-dark) 100%);
+ border:1px solid #ffffff68;color:#fff;font-size:13px;font-weight:650;
+ box-shadow:inset 0 1px 1px #ffffff42,0 8px 18px #6f76d82c;
+}
+.modal .primary:hover{filter:brightness(1.055);box-shadow:inset 0 1px 1px #ffffff50,0 10px 22px #6f76d83a}
+.modal .primary:disabled{opacity:.68;filter:saturate(.72);cursor:not-allowed}
+.modal .quiet.secondary,.modal #detect-again{
+ min-height:38px;padding:0 15px;border:1px solid var(--dialog-blue-border);border-radius:999px;
+ background:var(--dialog-blue-bg);color:var(--dialog-blue-text);font-size:12px;font-weight:600;
+ box-shadow:inset 0 1px 1px #ffffffa8;
+}
+.modal .quiet.secondary:hover,.modal #detect-again:hover{background:#d2e1f9;border-color:#8eadd8;color:#3d5e91}
+.modal .field-label{margin:19px 0 9px;font-size:12px;font-weight:650;color:#596984}
+.modal .field-help{font-size:11px;line-height:1.75;color:#8997ae}
+.modal .form-note{margin:20px 0;padding:14px 16px;border:1px solid #e1e8f3;background:#e8eef9a6;color:#8493aa}
+.modal .form-note p{font-size:11px}
+
+/* Settings and convenience cards. */
+.setting-link{
+ min-height:78px;padding:17px 18px;border-color:#d8e2f0;border-radius:18px;
+ background:linear-gradient(115deg,#ffffffdc,#edf3ffbd);
+}
+.setting-link:hover{background:linear-gradient(115deg,#f0edff,#e6f3ff);border-color:#b9c7eb;transform:translateY(-1px)}
+.setting-icon{width:42px;height:42px;border-radius:14px;background:linear-gradient(135deg,#e2defc,#dbeef8);color:#858bce}
+.setting-copy strong,.shortcut-card strong{font-size:14px;font-weight:650;color:#455571}
+.setting-copy small,.shortcut-card p{font-size:11px;color:#8796ad}
+.shortcut-card{padding:17px 18px;border-color:#d8e2f0;border-radius:18px;background:linear-gradient(115deg,#ffffffcf,#edf3ffad)}
+.shortcut-card #shortcut-create{min-height:38px;border-radius:999px;font-size:12px;font-weight:650}
+.close-setting{border-color:#d9e2ef;border-radius:18px;background:#ffffff91}
+.setting-section-heading h3{font-size:14px;font-weight:650;color:#4d5d79}
+.modal .close-option{padding:14px 15px;border-color:#d9e2ef;background:#f9fbffb8}
+.close-option:has(input:checked){border-color:#9da5ec;background:linear-gradient(110deg,#ecebff,#e7f2ff);box-shadow:inset 0 1px 1px #fff}
+.close-option strong,.startup-option strong{font-size:12px;font-weight:650;color:#4d5d78}
+#settings-save{min-height:48px;font-size:13px}
+
+/* API collection. */
+#setup-profiles{max-height:340px}
+.setup-profile.profile-row{padding:13px 14px;border-color:#dbe3f0;border-radius:15px;background:#ffffffa6}
+.setup-profile.selected{border-color:#8f96ee;background:linear-gradient(115deg,#f0efff,#eaf4ff);box-shadow:inset 0 1px 1px #fff,0 5px 15px #7078df16}
+.setup-profile .profile-info strong{font-size:13px;font-weight:650;color:#455571}
+.setup-profile .profile-info small{font-size:10.5px;line-height:1.75;color:#8796ae}
+.setup-profile .edit-profile{min-height:34px;padding:0 14px!important;border-radius:999px!important;background:var(--dialog-blue-bg)!important;border-color:var(--dialog-blue-border)!important;color:var(--dialog-blue-text)!important;font-size:11px;font-weight:600}
+.modal .segmented{padding:5px;border-color:#d9e2ef;border-radius:14px;background:#e6ebf5b5}
+.modal .segmented span{padding:11px 8px;border-radius:10px;font-size:12px;color:#7e8da5}
+.modal .segmented input:checked+span{background:linear-gradient(120deg,#8d96f5,#777ee5);color:#fff;font-weight:650;box-shadow:0 4px 11px #6e76da2d}
+#setup-save{min-height:50px;font-size:14px}
+
+/* Install and update workflow. */
+.system-banner{padding:15px 17px;border-color:#dce5f1;border-radius:18px;background:linear-gradient(110deg,#ffffffdc,#edf4ffbf)}
+.system-icon,.component-icon{background:linear-gradient(135deg,#e5e2fb,#dfeef8);color:#8593c4}
+.system-banner strong{font-size:13px;font-weight:650;color:#455570}
+.system-banner small{font-size:10.5px;color:#8998af}
+.component-list{margin:17px 0;border-color:#d9e2ef;border-radius:17px;background:#ffffff87}
+.component{min-height:72px;padding:15px 17px}
+.component+.component{border-color:#dfe6f1}
+.component-copy strong,.update-copy strong{font-size:13px;font-weight:650;color:#455570}
+.component-copy small,.update-copy small{font-size:10.5px;color:#8998af}
+.install-state{padding:6px 10px;border-radius:999px;font-size:10px;font-weight:600}
+.install-state.present{color:#4f816e;background:#dff1e9}
+.install-state.absent{color:#9b7752;background:#f5ead8}
+.install-actions{gap:11px;margin-top:19px;align-items:stretch}
+.install-actions>.primary{min-height:46px;font-size:13px}
+.install-actions>.quiet{min-height:46px}
+.support-note{padding:12px 14px;border-radius:12px;font-size:11px}
+.updates-section{margin-top:27px;padding-top:24px;border-color:#d9e2ef}
+.updates-heading h3{font-size:16px;font-weight:650;color:#455570}
+.updates-heading p{font-size:11px}
+.update-row{min-height:68px;padding:14px 16px;border-color:#d9e2ef;border-radius:14px;background:#ffffff91}
+.updates-actions>.primary{min-height:46px;font-size:13px}
+
+/* Configuration and backup details. */
+.details-list{display:grid;gap:10px;padding:2px 0 0}
+.detail-item{padding:13px 15px;border:1px solid #dce5f1;border-radius:14px;background:#ffffff91;box-shadow:inset 0 1px 1px #ffffffb8}
+.details-list dt{margin:0 0 5px;font-size:11px;font-weight:650;color:#7888a3}
+.details-list dd{font-size:12px;line-height:1.75;color:#536783;overflow-wrap:anywhere}
+.backup-summary{margin:22px 0;padding:17px 18px;border:1px solid #dce5f1;border-radius:16px;background:linear-gradient(115deg,#e9eef9,#edf5fb)}
+.backup-summary strong{font-size:13px;font-weight:650;color:#596e93}
+.backup-summary p{font-size:11px;line-height:1.8}
+.rules{padding:18px 19px;border-color:#dce4f0;border-radius:16px;background:#ffffffc7}
+.rules p{font-size:11px;line-height:1.7}
+.rules pre{font-size:11px;line-height:1.8;color:#687b9c}
+.details-actions{gap:12px;margin-top:22px}
+.details-actions .secondary{min-height:42px;font-size:12px}
+.modal .details-actions .secondary{
+ background:linear-gradient(120deg,#8d96f5 0%,#7d83e8 55%,#6f76dd 100%);
+ border-color:#8b85dc;color:#fff;font-weight:650;
+ box-shadow:inset 0 1px 1px #ffffff42,0 7px 15px #737dc32b;
+}
+.modal .details-actions .secondary:hover{background:linear-gradient(120deg,#999ff8,#858be9 55%,#777de1);border-color:#9992e5;color:#fff}
+
+/* Match the main panel's API action and current-use badge. */
+.install-actions #save-proxy{
+ background:linear-gradient(120deg,#85b3c6,#739dbb 65%,#829fc5);
+ border-color:#ffffff60;color:#fff;font-weight:650;
+ box-shadow:inset 0 1px 1px #ffffff42,0 7px 15px #4b9cb52b;
+}
+.install-actions #save-proxy:hover{background:linear-gradient(120deg,#91bdce,#7ea8c4 65%,#8eacd0);border-color:#ffffff80;color:#fff}
+.save-feedback{margin:10px 0 0;color:#4f8d78;font-size:11px;line-height:1.6;font-weight:600}
+.modal .install-state.present{
+ color:#3d6f53;background:#e1f2e8;border:1px solid #9dcdb0;
+ box-shadow:inset 0 1px 1px #ffffffb8,0 3px 8px #65b88918;
+ font-size:11px;font-weight:650;
+}
+
+@media(max-width:600px){
+ .modal{padding:23px 21px;border-radius:24px}
+ .modal h2{font-size:23px}
+ .modal-intro{margin:13px 0 19px}
+ .modal .icon-button{width:37px;height:37px}
+ .setting-link,.shortcut-card,.close-setting{padding:14px}
+ .install-actions{flex-wrap:wrap}
+ .install-actions>.primary{min-width:190px}
+ .details-actions{grid-template-columns:1fr}
+}

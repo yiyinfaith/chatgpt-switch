@@ -1,0 +1,26 @@
+name: checks
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  source-checks:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: ['3.11', '3.12']
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - name: Python tests
+        run: python -B -m unittest discover -s tests -v
+      - name: Python syntax
+        run: python -B -c "import ast,pathlib; files=[pathlib.Path('main.py'),pathlib.Path('build.py'),*pathlib.Path('switcher').glob('*.py'),*pathlib.Path('tests').glob('*.py')]; [ast.parse(p.read_text(encoding='utf-8'),filename=str(p)) for p in files]"
+      - name: JavaScript syntax
+        run: node --check ui/app.js && node --check ui/features.js && node --check ui/settings.js && node --check ui/window.js

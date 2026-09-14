@@ -1,0 +1,25 @@
+/* New controls are scoped to the existing footer and separate dialog sections. */
+footer nav{flex-shrink:0}
+.convenience-modal{width:540px}
+.shortcut-card{display:flex;gap:14px;align-items:center;padding:18px;border:1px solid #e3e9f2;border-radius:15px;background:#ffffff77}
+.shortcut-card strong{font-size:14px;font-weight:600}
+.shortcut-copy{flex:1;min-width:0}
+.shortcut-card .component-icon{flex-shrink:0}
+.shortcut-card #shortcut-create{flex:0 0 auto;min-width:72px;min-height:36px;margin:0;padding:0 15px;border-radius:11px;font-size:12px;white-space:nowrap}
+.shortcut-card p{font-size:12px;color:#8995a9;line-height:1.8;margin:7px 0 0}
+.feature-result{font-size:12px;line-height:1.8;color:#648d82;background:#eef8f3;padding:12px 14px;border-radius:11px;overflow-wrap:anywhere}
+.updates-section{margin-top:24px;padding-top:20px;border-top:1px solid #dce4f0}
+.updates-heading{display:flex;align-items:center;justify-content:space-between;gap:14px;margin-bottom:14px}
+.updates-heading h3{font-size:15px;font-weight:600;margin:0}
+.updates-heading p{font-size:11px;color:#8995a9;margin:7px 0 0;line-height:1.7}
+.update-row{display:flex;align-items:center;gap:12px;padding:14px;border:1px solid #e3e9f2;border-radius:12px;background:#ffffff69;margin-top:10px}
+.update-row input{accent-color:#9ca9d9;flex-shrink:0}
+.update-copy{flex:1;min-width:0}
+.update-copy strong{font-size:12px;font-weight:600}
+.update-copy small{display:block;font-size:11px;color:#8995a9;line-height:1.8;margin-top:5px;overflow-wrap:anywhere;white-space:pre-line}
+.update-row>.install-state{flex-shrink:0}
+.updates-actions{display:flex;gap:12px;margin-top:14px}
+.updates-actions>.primary{flex:1;min-height:44px;font-size:12px}
+.updates-section .install-log{margin-top:15px}
+.updates-section .install-log pre{max-height:150px}
+@media(max-width:600px){footer nav{flex-wrap:wrap}.updates-heading{align-items:flex-start}.update-row{gap:8px;padding:12px}.shortcut-card{padding:14px}}

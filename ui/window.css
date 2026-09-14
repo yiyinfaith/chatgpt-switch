@@ -1,0 +1,14 @@
+.native-window .titlebar{user-select:none;touch-action:none}
+.window-controls{display:flex;align-items:center;gap:2px;flex-shrink:0}
+.window-controls .icon-button{width:32px;height:32px;border-radius:9px}
+.window-controls svg{width:16px;height:16px}
+.window-controls #quit:hover{background:#f5d9e4;color:#b86e88}
+.window-resize{display:none;position:fixed;z-index:200;touch-action:none;user-select:none}
+.native-window:not(.window-fixed) .window-resize{display:block}
+.edge-n,.edge-s{left:10px;right:10px;height:6px;cursor:ns-resize}
+.edge-n{top:0}.edge-s{bottom:0}
+.edge-e,.edge-w{top:10px;bottom:10px;width:6px;cursor:ew-resize}
+.edge-e{right:0}.edge-w{left:0}
+.edge-ne,.edge-nw,.edge-se,.edge-sw{width:10px;height:10px}
+.edge-ne{top:0;right:0;cursor:nesw-resize}.edge-nw{top:0;left:0;cursor:nwse-resize}
+.edge-se{bottom:0;right:0;cursor:nwse-resize}.edge-sw{bottom:0;left:0;cursor:nesw-resize}

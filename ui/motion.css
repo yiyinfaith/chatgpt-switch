@@ -1,0 +1,143 @@
+/* One motion contract for every interactive surface in the main page and dialogs. */
+:root {
+  --motion-time: .2s;
+  --motion-ease: cubic-bezier(.22,.7,.25,1);
+  --motion-lift: -2px;
+}
+
+button,
+button.quiet,
+button.icon-button,
+button.primary,
+button.text-button,
+summary,
+select,
+input[type="text"],
+input[type="url"],
+input[type="password"],
+input:not([type]),
+.mode-card,
+.clock-panel,
+.status,
+.profiles-panel,
+.mode-pill,
+.setting-link,
+.shortcut-card,
+.close-setting,
+.close-option,
+.startup-option,
+.component,
+.update-row,
+.detail-item,
+.setup-profile,
+.segmented,
+.system-banner,
+.install-log,
+.form-note,
+.form-error,
+.backup-summary,
+.rules {
+  transition: transform var(--motion-time) var(--motion-ease),
+              box-shadow var(--motion-time) var(--motion-ease),
+              border-color var(--motion-time) var(--motion-ease),
+              background-color var(--motion-time) var(--motion-ease),
+              background var(--motion-time) var(--motion-ease),
+              color var(--motion-time) var(--motion-ease),
+              filter var(--motion-time) var(--motion-ease);
+}
+
+/* Existing component rules use class selectors such as .quiet and
+   .icon-button. Keep this explicit list at the same specificity so those
+   controls receive the transform transition too. */
+button.quiet,
+button.icon-button,
+button.primary,
+button.text-button,
+.modal .startup-option input {
+  transition: transform var(--motion-time) var(--motion-ease),
+              box-shadow var(--motion-time) var(--motion-ease),
+              border-color var(--motion-time) var(--motion-ease),
+              background-color var(--motion-time) var(--motion-ease),
+              background var(--motion-time) var(--motion-ease),
+              color var(--motion-time) var(--motion-ease),
+              filter var(--motion-time) var(--motion-ease);
+}
+
+button:not(:disabled):hover,
+summary:hover,
+select:hover,
+input[type="text"]:hover,
+input[type="url"]:hover,
+input[type="password"]:hover,
+input:not([type]):hover {
+  transform: translateY(var(--motion-lift));
+}
+
+button:not(:disabled):active {
+  transform: translateY(1px);
+  transition-duration: .08s;
+}
+
+button:disabled,
+input:disabled,
+select:disabled {
+  transform: none !important;
+}
+
+/* The card itself and its call to action both respond, including the two
+   primary mode buttons that previously only changed brightness. */
+.mode-card:hover,
+.clock-panel:hover,
+.status:hover,
+.profiles-panel:hover,
+.mode-pill:hover,
+.setting-link:hover,
+.shortcut-card:hover,
+.close-setting:hover,
+.close-option:hover,
+.startup-option:hover,
+.component:hover,
+.update-row:hover,
+.detail-item:hover,
+.setup-profile:hover,
+.system-banner:hover,
+.install-log:hover,
+.form-note:hover,
+.form-error:hover,
+.backup-summary:hover,
+.rules:hover {
+  transform: translateY(-2px);
+}
+
+.mode-card > .primary:hover,
+.profiles-panel button:hover,
+footer button:hover {
+  box-shadow: inset 0 1px 1px #ffffff50, 0 10px 22px #6679a53a;
+}
+
+input[type="checkbox"],
+input[type="radio"] {
+  transition: transform var(--motion-time) var(--motion-ease), filter var(--motion-time) var(--motion-ease);
+}
+
+input[type="checkbox"]:hover:not(:disabled),
+input[type="radio"]:hover:not(:disabled) {
+  transform: scale(1.08);
+  filter: brightness(1.04);
+}
+
+.segmented label:hover,
+.segmented label:has(input:focus-visible) {
+  transform: translateY(-2px);
+  filter: brightness(1.04);
+  z-index: 1;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: .01ms !important;
+    animation-iteration-count: 1 !important;
+    scroll-behavior: auto !important;
+    transition-duration: .01ms !important;
+  }
+}
