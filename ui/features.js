@@ -7,6 +7,20 @@ function featureSettings(){return {proxyMode:radio('proxy-mode'),proxyAddress:$(
 function renderFeatures(){
  if(!state)return;
  const job=state.job,locked=job.busy||featureRequest,updates=state.updates;
+ const self=state.appUpdate;
+ if(self){
+  const active=['app-update','app-update-check'].includes(job.kind)&&job.busy;
+  $('app-update-version').textContent='当前版本 v'+state.version+(self.latest?' · 最新正式版 '+self.latest:'');
+  $('app-update-status').textContent=active?job.message:self.message;
+  $('app-update-check').disabled=locked||self.status==='restarting';
+  $('app-update-check').lastChild.textContent=self.status==='checking'?'检测中…':'检测新版本';
+  $('app-update-install').hidden=!self.canInstall;
+  $('app-update-install').disabled=locked;
+  $('app-update-cancel').hidden=!active||self.status==='restarting';
+  $('app-update-cancel').textContent=job.kind==='app-update-check'?'取消检测':'取消下载';
+  if(self.status==='error')fieldError('app-update-error',self.message);
+  else if(active)fieldError('app-update-error','');
+ }
  const signature=JSON.stringify(updates);
  for(const component of ['cli','desktop']){
   const entry=updates?.[component]||{status:'unchecked'},box=$('update-'+component),badge=$('update-'+component+'-state');
@@ -69,6 +83,10 @@ $('open-config-file').addEventListener('click',openConfigFile);
 $('shortcut-create').addEventListener('click',()=>{$('shortcut-result').hidden=true;featureAction('/api/shortcut',{},'shortcut-error');});
 $('app-shortcut-create').addEventListener('click',()=>{$('app-shortcut-result').hidden=true;featureAction('/api/app-shortcut',{},'app-shortcut-error');});
 $('updates-check').addEventListener('click',()=>featureAction('/api/updates/check',featureSettings(),'updates-error'));
+$('app-update-check').addEventListener('click',()=>featureAction('/api/app-update/check',featureSettings(),'app-update-error'));
+$('app-update-install').addEventListener('click',()=>featureAction('/api/app-update/install',featureSettings(),'app-update-error'));
+$('app-update-cancel').addEventListener('click',()=>act('/api/cancel'));
+$('app-update-releases').addEventListener('click',()=>act('/api/project/open',{target:'releases'}));
 $('updates-apply').addEventListener('click',()=>featureAction('/api/updates/apply',{...featureSettings(),selection:['cli','desktop'].filter(c=>$('update-'+c).checked&&!$('update-'+c).disabled)},'updates-error'));
 // Cancelling a running job is deliberately allowed while the job lock is held.
 $('updates-cancel').addEventListener('click',()=>act('/api/cancel'));

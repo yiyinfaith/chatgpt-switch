@@ -88,6 +88,7 @@ class WindowController:
 
     def on_loaded(self):
         self.window.events.loaded.wait(1)
+        self.app.ui_ready = True
         if self.pending_page:
             page, self.pending_page = self.pending_page, None
             self._navigate(page)

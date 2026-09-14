@@ -9,6 +9,7 @@ function openSettings(){
 }
 function renderSettings(){
  if(!state)return;
+ $('about-version').textContent='版本 '+state.version+' · 开源便携版';
  $('settings-api-summary').textContent=state.profiles.length?`已保存 ${state.profiles.length} 套配置 · 管理服务、模型和密钥`:'保存多套服务和模型，选择一套生效。';
  $('settings-save').disabled=settingsRequest;
  $('auto-start').disabled=settingsRequest||state.startup?.supported===false;
@@ -29,6 +30,11 @@ function navigatePanel(page){
  else dialogs.forEach(d=>{if(d.open)d.close();});
 }
 $('settings-open').addEventListener('click',openSettings);
+$('about-open').addEventListener('click',()=>showDialog('about-dialog'));
+// Preserve unsaved settings when returning from About.
+$('about-back').addEventListener('click',()=>showDialog('settings-dialog'));
+$('about-project').addEventListener('click',()=>act('/api/project/open',{target:'project'}));
+$('about-issues').addEventListener('click',()=>act('/api/project/open',{target:'issues'}));
 $('setup-back').addEventListener('click',openSettings);
 $('install-back').addEventListener('click',()=>showDialog('convenience-dialog'));
 $('settings-form').addEventListener('submit',async event=>{

@@ -22,6 +22,8 @@ from .convenience import create_shortcut, create_app_shortcut
 from .updates import UpdateManager, FakeUpdateManager
 from .autostart import Autostart
 from .settings import SettingsStore
+from . import __version__
+from .self_update import SelfUpdater, PROJECT_URL, RELEASES_URL
 
 
 class Application:
@@ -37,6 +39,8 @@ class Application:
         self.integration = FakeIntegration(installed=not test_missing) if test_mode else SystemIntegration()
         self.installer = FakeInstaller(self.root, self.integration) if test_mode else Installer(self.root, self.integration)
         self.updater = (FakeUpdateManager if test_mode else UpdateManager)(self.integration, self.installer)
+        self.self_updater = SelfUpdater(self.root, test_mode)
+        self.ui_ready = False
         self.test_mode = test_mode
         self.autostart = Autostart(self.root, test_mode)
         self.settings_store = SettingsStore(self.data_dir / "settings.json", self.autostart)
@@ -131,7 +135,8 @@ class Application:
                 "environment": self.environment, "platform": self.integration.info, "preferences": self.preferences(),
                 "settings": self.settings(),
                 "startup": {"supported": self.autostart.supported, "error": self.startup_error},
-                "job": job, "warning": self.warning, "testMode": self.test_mode, "version": "2.0.0",
+                "job": job, "warning": self.warning, "testMode": self.test_mode, "version": __version__,
+                "appUpdate": dict(self.self_updater.state), "uiReady": self.ui_ready,
                 "profiles": profiles, "profileError": profile_error, "activeProfile": self.active_profile(),
                 "selectedProfile": self.selected_profile(), "tray": self.tray_status,
                 "nativeWindow": self.window_controller is not None, "updates": self.updater.state}
@@ -188,7 +193,7 @@ class Application:
 
     def start_job(self, kind, operation):
         with self.lock:
-            if self.job["busy"]:
+            if self.job["busy"] or self.self_updater.pending:
                 raise ConfigError("已有操作正在进行，请稍候。")
             self.cancel.clear()
             self.job = {"busy": True, "kind": kind, "status": "running", "message": "正在准备…", "logs": [], "id": self.job["id"] + 1}
@@ -212,6 +217,8 @@ class Application:
                     self.tray.refresh()
                     if kind in {"profile", "switch", "setup", "install"}:
                         self.tray.notify(self.job["message"])
+                if kind == "app-update" and self.self_updater.pending:
+                    self.quit()
         threading.Thread(target=worker, daemon=True).start()
         return {"started": True, "jobId": self.job["id"]}
 
@@ -232,6 +239,21 @@ class Application:
         return {"message": "已切换至" + ("账号额度" if mode == "account" else "第三方 API") + "，已检测到重新启动的 ChatGPT 进程。", "saved": saved}
 
     def action(self, route, body):
+        if route == "/api/project/open":
+            choices = {"project": PROJECT_URL, "releases": RELEASES_URL, "issues": PROJECT_URL + "/issues"}
+            if body.get("target") not in choices:
+                raise ConfigError("未知项目链接。")
+            if not self.test_mode:
+                webbrowser.open(choices[body["target"]])
+            return {"ok": True, "message": "已请求浏览器打开项目页面。"}
+        if route in {"/api/app-update/check", "/api/app-update/install"}:
+            saved_proxy = self.preferences()
+            settings = proxy_settings(body.get("proxyMode", saved_proxy["mode"]),
+                                      body.get("proxyAddress", saved_proxy["address"]))
+            checking = route.endswith("/check")
+            operation = self.self_updater.check if checking else self.self_updater.install
+            return self.start_job("app-update-check" if checking else "app-update",
+                                  lambda: operation(settings, self.progress, self.cancel))
         if route == "/api/settings":
             behavior = body.get("closeBehavior")
             if behavior not in ("exit", "background"):
@@ -342,7 +364,7 @@ class Application:
                     self.environment = self.integration.detect()
             return self.start_job("install", install)
         if route == "/api/cancel":
-            if self.job["busy"] and self.job["kind"] in {"install", "update", "update-check"}:
+            if self.job["busy"] and self.job["kind"] in {"install", "update", "update-check", "app-update", "app-update-check"}:
                 self.cancel.set()
             return {"requested": True}
         if route == "/api/open":

@@ -4,6 +4,7 @@ import subprocess
 import sys
 import tempfile
 from pathlib import Path
+from switcher import __version__
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--deps', type=Path)
@@ -17,12 +18,20 @@ cmd = [sys.executable, '-m', 'PyInstaller', '--noconfirm', '--clean', '--onefile
        '--workpath', str(work / 'build'), '--specpath', str(work),
        '--add-data', str(root / 'ui') + os.pathsep + 'ui',
        '--add-data', str(root / 'switcher/native_frame.cs') + os.pathsep + 'switcher',
-       '--add-data', str(root / 'switcher/native_tray.cs') + os.pathsep + 'switcher']
+       '--add-data', str(root / 'switcher/native_tray.cs') + os.pathsep + 'switcher',
+       '--add-data', str(root / 'switcher/apply_update.ps1') + os.pathsep + 'switcher']
 for module in ('matplotlib', 'numpy', 'pandas', 'scipy', 'tkinter', 'playwright'):
     cmd += ['--exclude-module', module]
 if sys.platform == 'win32':
+    version_text = (root / 'assets/windows-version.txt').read_text('utf-8')
+    version_parts = tuple(map(int, __version__.split('.'))) + (0,)
+    import re
+    version_text = re.sub(r'(filevers|prodvers)=\([^)]*\)', lambda m: m[1] + '=' + repr(version_parts), version_text)
+    version_text = re.sub(r"(StringStruct\('(?:FileVersion|ProductVersion)', ')[^']+", lambda m: m[1] + __version__ + '.0', version_text)
+    version_file = work / 'windows-version.txt'
+    version_file.write_text(version_text, 'utf-8')
     cmd += ['--icon', str(root / 'assets/icon.ico'),
-            '--version-file', str(root / 'assets/windows-version.txt')]
+            '--version-file', str(version_file)]
     for module in ('pystray._win32', 'webview.platforms.winforms',
                    'webview.platforms.edgechromium', 'pythonnet', 'clr_loader'):
         cmd += ['--hidden-import', module]
