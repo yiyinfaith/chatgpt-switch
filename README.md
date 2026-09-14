@@ -90,10 +90,6 @@ macOS / Linux 可使用 `python3 -m pip install -r requirements.txt pyinstaller 
 
 回归检查可运行 `python -B -m unittest discover -s tests -v`。Windows 上的原生托盘测试会使用系统 .NET Framework C# 编译器，检查四周等距布局、100%～200% 缩放、反复打开菜单以及六个菜单动作；非 Windows 或缺少编译器时跳过该项。测试只创建临时菜单，不切换真实 API 配置。
 
-## 动效与界面范围
-
-主面板和「设置」「API 配置」「新增/编辑 API」「安装与代理」「便捷功能」「配置与备份」等子界面共用 `ui/motion.css`。按钮、主模式卡片、状态卡片、API 配置行、安装/更新行、设置选项、详情项、分段选择器、输入框、下拉框、复选框和单选框都提供一致的悬停、按下、聚焦反馈；禁用控件不会移动。两个主模式按钮的悬停效果也是上浮 2 像素，而不是只改变亮度。系统开启“减少动态效果”时，动画会自动降为近乎即时。
-
 ## 配置文件和环境变量
 
 程序不会把 API 密钥写进仓库。运行时配置位于当前用户的 Codex 目录（Windows 通常是 `%USERPROFILE%\\.codex`，macOS/Linux 通常是 `~/.codex`）：
@@ -125,64 +121,3 @@ MY_API_KEY=替换成你的真实密钥
 `base_url` 必须是完整的 `http://` 或 `https://` 地址；`env_key` 必须是字母或下划线开头、只含字母/数字/下划线的变量名，例如 `MY_API_KEY`。不要把密钥写入 `config.toml`、`README.md`、截图、Issue 或提交记录。也不要使用 `PATH`、`HOME`、`USERPROFILE` 等系统变量名。推荐先复制一份 `.env` 作为离线备份，再通过页面「设置 → API 配置」保存和应用。
 
 页面中的 `base URL`、`model`、`env_key` 和密钥字段会写入本机的 `data/profiles.json`；应用配置时，程序才会更新 `config.toml` 和 `.env`，并保留修改前的备份。编辑已有配置时密钥留空表示保留原密钥。`.env` 不存在时，应用配置会按填写的 `env_key` 创建它。
-
-## 仓库目录分类
-
-下面这些是应进入 GitHub **main 分支**的源码和项目文件：
-
-```text
-main.py                 # 程序入口
-switcher/*.py           # 服务、配置、托盘、窗口和安装逻辑
-switcher/native_*.cs    # 运行时编译的 Windows 原生窗口/托盘资源
-ui/                     # HTML、CSS、JavaScript、图标
-tests/                  # Python 与 Windows 原生托盘回归测试
-assets/                 # 构建图标和 Windows 版本清单
-build.py                # PyInstaller 构建入口
-requirements.txt        # 构建/运行依赖
-Start.cmd/start.sh/Start.command
-README.md/.gitignore/.github/workflows/ci.yml
-data/.gitkeep/backups/.gitkeep
-```
-
-下面这些是本机运行数据，**不应上传 main，也不应放进 Release**：
-
-```text
-data/*.json             # API 配置、设置、会话和活动 profile
-data/browser/           # 浏览器用户数据和缓存
-data/icons/             # 当前机器生成的快捷方式图标缓存
-backups/                # config.toml/.env 的历史备份
-~/.codex/config.toml
-~/.codex/.env
-```
-
-其中 `config.toml`、`.env`、`data/profiles.json` 可能包含服务地址、账号信息或密钥；发布前应检查 Git 暂存区和 `git diff --cached`，确认没有任何真实配置。`.gitignore` 已覆盖这些运行数据，但仍要在提交前检查文件名和构建脚本生成的临时文件。
-
-下面这些是 GitHub **Release 附件**，不要提交到 main：
-
-```text
-ChatGPT Switch.exe      # Windows x64 的 PyInstaller one-file 包
-SHA256SUMS.txt          # Release 对应的校验值
-```
-
-Release 说明中应写明版本号、支持的 Windows 架构、构建日期、变更内容和 SHA-256。源码用户从 main 克隆后运行 `Start.cmd` 或 `start.sh`；普通 Windows 用户下载 Release 中的 `ChatGPT Switch.exe` 即可。EXE 不包含你的 `data/`、`backups/`、`config.toml` 或 `.env`。
-
-## 贡献和发布检查
-
-提交前运行：
-
-```powershell
-python -B -m unittest discover -s tests -v
-node --check ui/app.js
-node --check ui/features.js
-node --check ui/settings.js
-node --check ui/window.js
-python -B -c "import ast,pathlib; files=[pathlib.Path('main.py'),pathlib.Path('build.py'),*pathlib.Path('switcher').glob('*.py'),*pathlib.Path('tests').glob('*.py')]; [ast.parse(p.read_text(encoding='utf-8'),filename=str(p)) for p in files]"
-```
-
-Windows 发布构建建议先输出到隔离目录，确认成功后再替换本地 EXE：
-
-```powershell
-python -B build.py --deps <依赖目录> --dist <暂存目录>
-```
-
-在替换前确认旧版进程已退出。构建后至少检查 EXE 的大小和 SHA-256，运行 `ChatGPT Switch.exe --diagnose <报告路径>`，再启动 EXE 检查 `/api/state` 中 `tray` 为 `ready`。托盘和 UI 的真实检查应覆盖主界面、四个子界面、二级 API 菜单、悬停上浮、按下回弹、输入框聚焦和“减少动态效果”模式。不要用包含真实密钥的工作目录执行测试，也不要把测试截图、`output/`、临时依赖目录或 `.playwright-cli/` 提交到仓库。
