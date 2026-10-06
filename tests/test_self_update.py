@@ -159,6 +159,86 @@ class SelfUpdateTests(unittest.TestCase):
                     self.assertEqual(operation.call_args.args[0], expected)
         self.assertEqual(app.preferences(), saved)
 
+    def test_background_check_uses_saved_proxy_without_taking_job_lock(self):
+        from switcher.server import Application
+        app = Application(self.root, self.root / 'fixture-config', test_mode=True)
+        saved = {'mode': 'custom', 'address': 'http://127.0.0.1:7890'}
+        app.action('/api/preferences', saved)
+        job = dict(app.job)
+        seen = []
+        def check(probe, settings, progress, cancel):
+            seen.append(settings)
+            self.assertFalse(app.job['busy'])
+            probe.state.update(status='available', latest='v9.0.0', canInstall=False)
+            probe.asset = asset()
+        with patch.object(SelfUpdater, 'check', check):
+            self.assertEqual(app.check_update_in_background(), 6 * 60 * 60)
+        self.assertEqual(seen, [saved])
+        self.assertEqual(app.job, job)
+        self.assertEqual(app.state()['appUpdate']['status'], 'available')
+        self.assertEqual(app.self_updater.asset, asset())
+
+    def test_background_network_failure_preserves_verified_update_and_retries(self):
+        from switcher.server import Application
+        app = Application(self.root, self.root / 'fixture-config', test_mode=True)
+        app.self_updater.state.update(status='available', latest='v9.0.0', canInstall=True)
+        app.self_updater.asset = asset()
+        with patch.object(SelfUpdater, 'opener', side_effect=OSError('offline')):
+            self.assertEqual(app.check_update_in_background(), 15 * 60)
+        self.assertEqual(app.self_updater.state['status'], 'available')
+        self.assertTrue(app.self_updater.state['canInstall'])
+        self.assertEqual(app.self_updater.asset, asset())
+        self.assertEqual(app.job['status'], 'idle')
+
+    def test_background_result_cannot_overwrite_a_manual_check_or_install(self):
+        from switcher.server import Application
+        app = Application(self.root, self.root / 'fixture-config', test_mode=True)
+        def check(probe, *_args):
+            probe.state.update(status='current')
+            app.action('/api/app-update/check', {})
+            deadline = time.monotonic() + 3
+            while app.job['busy'] and time.monotonic() < deadline:
+                time.sleep(.01)
+        with patch.object(SelfUpdater, 'check', check), patch.object(app.self_updater, 'check', return_value={'message': 'manual'}):
+            self.assertEqual(app.check_update_in_background(), 60)
+        self.assertEqual(app.self_updater.state['status'], 'unchecked')
+        self.assertEqual(app.job['message'], 'manual')
+        app.job.update(busy=True, kind='app-update')
+        with patch.object(SelfUpdater, 'check') as check:
+            self.assertEqual(app.check_update_in_background(), 60)
+            check.assert_not_called()
+
+    def test_background_check_does_not_publish_after_shutdown(self):
+        from switcher.server import Application
+        app = Application(self.root, self.root / 'fixture-config', test_mode=True)
+        def check(probe, *_args):
+            probe.state.update(status='available', latest='v9.0.0')
+            app.update_check_stop.set()
+        with patch.object(SelfUpdater, 'check', check):
+            app.check_update_in_background()
+        self.assertEqual(app.self_updater.state['status'], 'unchecked')
+
+    def test_background_current_and_failed_checks_remain_quiet(self):
+        from switcher.server import Application
+        for payload, expected in [(json.dumps({'tag_name': 'v'+__version__}).encode(), 'current'), (b'invalid', 'error')]:
+            app = Application(self.root, self.root / 'fixture-config', test_mode=True)
+            with patch.object(SelfUpdater, 'opener', return_value=self.response(payload)):
+                app.check_update_in_background()
+            self.assertEqual(app.self_updater.state['status'], expected)
+            self.assertEqual(app.job['status'], 'idle')
+            self.assertFalse(app.self_updater.state['canInstall'])
+
+    def test_background_scheduler_waits_then_rechecks_and_stops(self):
+        from switcher.server import Application
+        app = Application(self.root, self.root / 'fixture-config', test_mode=True)
+        with patch.object(app.update_check_stop, 'wait', side_effect=[False, False, True]) as wait, \
+             patch.object(app, 'check_update_in_background', side_effect=[900, 21600]) as check:
+            app.start_update_checks()
+            app.update_check_thread.join(timeout=2)
+        self.assertFalse(app.update_check_thread.is_alive())
+        self.assertEqual([c.args[0] for c in wait.call_args_list], [5, 900, 21600])
+        self.assertEqual(check.call_count, 2)
+
 
 if __name__ == '__main__':
     unittest.main()

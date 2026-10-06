@@ -9,6 +9,13 @@ function renderFeatures(){
  const job=state.job,locked=job.busy||featureRequest,updates=state.updates;
  const self=state.appUpdate;
  if(self){
+  const badge=$('app-update-badge');
+  const updating=self.status==='downloading'||self.status==='restarting';
+  badge.hidden=self.status!=='available'&&!updating;
+  badge.disabled=locked||updating;
+  badge.querySelector('span').textContent=self.status==='restarting'?'重启中…':updating?'更新中…':'有更新';
+  badge.title=updating?(job.message||self.message):self.canInstall?'发现 '+self.latest+'，点击下载并重启更新':'发现 '+self.latest+'，点击前往发布页下载';
+  badge.setAttribute('aria-label',badge.title);
   const active=['app-update','app-update-check'].includes(job.kind)&&job.busy;
   $('app-update-version').textContent='当前版本 v'+state.version+(self.latest?' · 最新正式版 '+self.latest:'');
   $('app-update-status').textContent=active?job.message:self.message;
@@ -85,6 +92,14 @@ $('app-shortcut-create').addEventListener('click',()=>{$('app-shortcut-result').
 $('updates-check').addEventListener('click',()=>featureAction('/api/updates/check',featureSettings(),'updates-error'));
 $('app-update-check').addEventListener('click',()=>featureAction('/api/app-update/check',featureSettings(),'app-update-error'));
 $('app-update-install').addEventListener('click',()=>featureAction('/api/app-update/install',featureSettings(),'app-update-error'));
+$('app-update-badge').addEventListener('click',async()=>{
+ if(featureRequest||state?.job.busy)return;
+ if(!state?.appUpdate?.canInstall){await act('/api/project/open',{target:'releases'});return;}
+ featureRequest=true;renderFeatures();
+ try{await request('/api/app-update/install',{});await refresh();}
+ catch(error){toast(error.message);}
+ finally{featureRequest=false;renderFeatures();}
+});
 $('app-update-cancel').addEventListener('click',()=>act('/api/cancel'));
 $('app-update-releases').addEventListener('click',()=>act('/api/project/open',{target:'releases'}));
 $('updates-apply').addEventListener('click',()=>featureAction('/api/updates/apply',{...featureSettings(),selection:['cli','desktop'].filter(c=>$('update-'+c).checked&&!$('update-'+c).disabled)},'updates-error'));

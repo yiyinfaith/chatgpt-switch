@@ -37,3 +37,15 @@ footer nav{flex-shrink:0}
 .updates-section .install-log{margin-top:15px}
 .updates-section .install-log pre{max-height:150px}
 @media(max-width:600px){footer nav{flex-wrap:wrap}.updates-heading{align-items:flex-start}.update-row{gap:8px;padding:12px}.shortcut-card{padding:14px}}
+/* Keep the current-mode pill anchored; new releases appear immediately to its left. */
+.clock-actions{position:absolute;right:24px;top:42px;display:flex;align-items:center;gap:10px;max-width:34%;z-index:2}
+.clock-actions:has(.update-badge:not([hidden])){max-width:calc(100% - 365px)}
+.clock-panel .clock-actions .mode-pill{position:static;max-width:100%;min-width:0;flex-shrink:1}
+.update-badge{display:inline-flex;align-items:center;justify-content:center;gap:5px;flex-shrink:0;padding:8px 12px;border:1px solid #b7b0e8;border-radius:999px;background:#eee9fc;color:#6753a0;font-size:12px;font-weight:600;line-height:normal;white-space:nowrap;box-shadow:inset 0 1px 1px #ffffffb8}
+.update-badge svg{width:14px;height:14px}
+.update-badge:hover:not(:disabled){background:#e2d9f9;border-color:#9e91d5;box-shadow:0 5px 14px #817bd826}
+.update-badge:focus-visible{outline:2px solid #817bd8;outline-offset:3px}
+.update-badge:disabled{opacity:.65;cursor:default}
+@media(max-height:850px) and (min-width:801px){.clock-actions{top:33px;right:20px}}
+@media(max-height:700px){.clock-actions{top:25px;right:16px}.clock-actions:has(.update-badge:not([hidden])){max-width:calc(100% - 310px)}.update-badge{padding:6px 10px}}
+@media(max-width:600px){.clock-actions{right:16px}.clock-actions:has(.update-badge:not([hidden])){max-width:55%;gap:6px}.update-badge{padding:6px 8px;font-size:11px}}

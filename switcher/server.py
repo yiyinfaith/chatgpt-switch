@@ -47,6 +47,9 @@ class Application:
         self.startup_error = ""
         self.environment = None
         self.lock = threading.RLock()
+        self.update_check_stop = threading.Event()
+        self.update_check_thread = None
+        self.update_generation = 0
         self.job = {"busy": False, "kind": "", "status": "idle", "message": "", "logs": [], "id": 0}
         self.cancel = threading.Event()
         self.last_ping = time.monotonic()
@@ -71,6 +74,40 @@ class Application:
             return proxy_settings(value.get("mode", "direct"), value.get("address", ""))
         except (OSError, ValueError, ConfigError):
             return {"mode": "direct", "address": ""}
+
+    def check_update_in_background(self):
+        """Probe separately so network I/O never locks normal application actions."""
+        with self.lock:
+            if self.self_updater.pending or (self.job["busy"] and self.job["kind"] in {"app-update", "app-update-check"}):
+                return 60
+            generation = self.update_generation
+        probe = SelfUpdater(self.root, self.test_mode)
+        try:
+            probe.check(self.preferences(), lambda _: None, self.update_check_stop)
+            retry = 6 * 60 * 60
+        except Exception:
+            retry = 15 * 60
+        with self.lock:
+            # A manual check/install takes precedence even if it already finished.
+            if self.update_check_stop.is_set() or generation != self.update_generation or self.self_updater.pending:
+                return 60
+            # Keep an already verified update usable during temporary network failures.
+            if probe.state["status"] != "error" or self.self_updater.state["status"] != "available":
+                self.self_updater.state = dict(probe.state)
+                self.self_updater.asset = probe.asset
+        return retry
+
+    def start_update_checks(self):
+        with self.lock:
+            if self.update_check_thread and self.update_check_thread.is_alive():
+                return
+            self.update_check_stop.clear()
+            def worker():
+                delay = 5
+                while not self.update_check_stop.wait(delay):
+                    delay = self.check_update_in_background()
+            self.update_check_thread = threading.Thread(target=worker, daemon=True, name="app-update-check")
+            self.update_check_thread.start()
 
     def settings(self):
         return self.settings_store.public()
@@ -195,6 +232,8 @@ class Application:
         with self.lock:
             if self.job["busy"] or self.self_updater.pending:
                 raise ConfigError("已有操作正在进行，请稍候。")
+            if kind in {"app-update", "app-update-check"}:
+                self.update_generation += 1
             self.cancel.clear()
             self.job = {"busy": True, "kind": kind, "status": "running", "message": "正在准备…", "logs": [], "id": self.job["id"] + 1}
         if self.tray:
@@ -502,6 +541,7 @@ def serve(app, ui_root, port=0, no_browser=False):
                     server.shutdown()
                     return
         threading.Thread(target=watchdog, daemon=True).start()
+    app.start_update_checks()
     try:
         if not no_browser and app.integration.info["system"] == "Darwin" and app.tray and app.tray.icon:
             threading.Thread(target=server.serve_forever, daemon=True).start()
@@ -509,6 +549,7 @@ def serve(app, ui_root, port=0, no_browser=False):
         else:
             server.serve_forever(poll_interval=0.3)
     finally:
+        app.update_check_stop.set()
         if app.tray:
             app.tray.stop()
         server.server_close()
